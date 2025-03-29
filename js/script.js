@@ -21,6 +21,7 @@ search.addEventListener('submit', async event => {
     if(city){
         search_input.value = '';
         try{
+            weatherIcon.textContent = "⏳ Loading..."
             const weatherData = await getWeatherData(city);
             displayWeatherInfo(weatherData, city);
         }
