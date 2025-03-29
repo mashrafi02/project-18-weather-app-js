@@ -70,15 +70,10 @@ body {
 }
 
 #city-name {
-    font-size: 22px;
+    font-size: 40px;
     margin: 10px 0;
 }
 
 #temperature,#humidity,#error {
-    font-size: 20px;
-}
-
-#weather-condition {
-    font-size: 18px;
-    opacity: 0.8;
+    font-size: 25px;
 }

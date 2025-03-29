@@ -13,7 +13,9 @@ const condition = document.getElementById('weather-condition')
 const err = document.getElementById('error')
 
 
-searchBtn.onclick = async ()=>{
+search.addEventListener('submit', async event => {
+    event.preventDefault()
+
     const city = search_input.value
 
     if(city){
@@ -29,7 +31,7 @@ searchBtn.onclick = async ()=>{
     }else{
         displayError('Please Enter a City first!')
     }
-}
+})
 
 
 async function getWeatherData(city) {
@@ -41,7 +43,7 @@ async function getWeatherData(city) {
 
     let {lat,lon} = latlondata[0]
     
-    const weatherURL = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API}`;
+    const weatherURL = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,is_day,relative_humidity_2m,weather_code`;
 
     const weatherResponse = await fetch(weatherURL);
 
@@ -57,19 +59,14 @@ async function getWeatherData(city) {
 function displayWeatherInfo(data, city){
     let formattedCity = city.charAt(0).toUpperCase() + city.slice(1).toLowerCase();
 
-    let city_name = formattedCity
-    let temperature = data.main.temp - 273;
-    let humidity = data.main.humidity;
-    let weathercon = data.weather[0].description;
-    let weatherEmoji = getWeatherEmoji(data.weather[0].id);
-
+    let {temperature_2m:temperature, is_day:day, relative_humidity_2m:humidity, weather_code:weathercon} = data.current
+    let weatherEmoji = getWeatherEmoji(weathercon, day)
     err.textContent = ""
     
     weatherIcon.textContent = weatherEmoji;
-    cityName.textContent = city_name;
-    temp.textContent = String(temperature.toFixed(2)) + " °C";
+    cityName.textContent = formattedCity;
+    temp.textContent = String(temperature) + " °C";
     hum.textContent = `Humidity: ${humidity}%`;
-    condition.textContent = weathercon;
 }
 
 
@@ -87,26 +84,27 @@ async function getlatlon(city){
 }
 
 
-function getWeatherEmoji(weatherid){
-    switch(true){
-        case (weatherid >= 200 && weatherid < 300):
-            return "⛈️"
-        case (weatherid >= 300 && weatherid < 400):
-            return "🌧️"
-        case (weatherid >= 500 && weatherid < 600):
-            return "🌧️"
-        case (weatherid >= 600 && weatherid < 700):
-            return "❄️"
-        case (weatherid >= 700 && weatherid < 800):
-            return "🌫️"
-        case (weatherid === 800):
-            return "☀️"
-        case (weatherid >= 801 && weatherid < 810):
-            return "🌥️"
+function getWeatherEmoji(weatherid, day) {
+    switch (true) {
+        case (weatherid >= 95 && weatherid <= 99): // Thunderstorm
+            return "⛈️ Thunderstorm";
+        case (weatherid >= 51 && weatherid <= 55): // Drizzle
+            return "🌧️ Drizzle";
+        case (weatherid === 1): // Clear Sky
+            return day ? "☀️ Clear Sky" : "🌙 Clear Sky";
+        case (weatherid === 2 || weatherid === 3): // Partly Cloudy
+            return day ? "⛅ Partly Cloudy" : "🌙☁️ Partly Cloudy";
+        case (weatherid >= 45 && weatherid <= 48): // Fog
+            return "🌫️ Foggy";
+        case (weatherid >= 61 && weatherid <= 67): // Rain
+            return "🌧️ Rain";
+        case (weatherid >= 71 && weatherid <= 77): // Snow
+            return "❄️ Snow";
         default:
-            return "❓"
+            return "❓Unknown Weather";
     }
 }
+
 
 
 function displayError(message){
