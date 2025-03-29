@@ -74,7 +74,7 @@ function displayWeatherInfo(data, city){
 
 
 async function getlatlon(city){
-    const latlonURL = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&appid=${API}`
+    const latlonURL = `https://api.openweathermap.org/geo/1.0/direct?q=${city}&appid=${API}`
 
     const latlonResponse = await fetch(latlonURL)
 
